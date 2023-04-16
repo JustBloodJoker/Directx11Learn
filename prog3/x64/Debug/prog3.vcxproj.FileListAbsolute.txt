@@ -1,0 +1,2 @@
+D:\Projects\D3D_Framework\prog3\prog3\x64\Debug\prog3.vcxproj.CopyComplete
+D:\prog3\prog3\x64\Debug\prog3.vcxproj.CopyComplete

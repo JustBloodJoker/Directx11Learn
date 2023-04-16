@@ -1,0 +1,9 @@
+﻿D:\VS\VS\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (prog3.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  FBXModelClass.cpp
+D:\prog3\prog3\Utilites.h(3,1): warning C4005: 'DELETE': macro redefinition
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(9772,1): message : see previous definition of 'DELETE'
+D:\prog3\prog3\FBXModelClass.cpp(223,23): warning C4018: '<': signed/unsigned mismatch
+D:\prog3\prog3\FBXModelClass.cpp(231,23): warning C4018: '<': signed/unsigned mismatch
+D:\prog3\prog3\FBXModelClass.cpp(242,23): warning C4018: '<': signed/unsigned mismatch
+D:\prog3\prog3\FBXModelClass.cpp(136): warning C4715: 'ModelClass::CompileShader': not all control paths return a value
+  prog3.vcxproj -> D:\prog3\x64\Debug\Directx11.exe

@@ -1,0 +1,12 @@
+﻿  GraphicClass.cpp
+D:\Projects\D3D_Framework\prog3\prog3\Utilites.h(3,1): warning C4005: 'DELETE': macro redefinition
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(9772,1): message : see previous definition of 'DELETE'
+  main.cpp
+D:\Projects\D3D_Framework\prog3\prog3\Utilites.h(3,1): warning C4005: 'DELETE': macro redefinition
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(9772,1): message : see previous definition of 'DELETE'
+  WinClass.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 13 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  prog3.vcxproj -> D:\Projects\D3D_Framework\prog3\x64\Release\prog3.exe
