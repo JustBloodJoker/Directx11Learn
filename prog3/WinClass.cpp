@@ -1,9 +1,5 @@
-
-
 #pragma once
 #include "WinClass.h"
-
-
 
 bool WinClass::RunRender = true;
 
@@ -30,9 +26,8 @@ WinClass::WinClass(HINSTANCE hInstance, const wchar_t* tittleName, const wchar_t
 	}
 
 	this->MainLoop();
-	mRender.ShutDown();
-}
 
+}
 
 WinClass::~WinClass() = default;
 

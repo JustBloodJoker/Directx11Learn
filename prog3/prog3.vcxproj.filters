@@ -24,7 +24,7 @@
     <ClCompile Include="GraphicClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FBXModelClass.cpp">
+    <ClCompile Include="ModelClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="Utilites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FBXModelClass.h">
+    <ClInclude Include="ModelClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,5 +49,9 @@
     <Text Include="shader.fx">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mesh.vs" />
+    <None Include="mesh.ps" />
   </ItemGroup>
 </Project>

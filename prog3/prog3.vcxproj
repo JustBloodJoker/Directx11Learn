@@ -128,13 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FBXModelClass.cpp" />
+    <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="GraphicClass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WinClass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FBXModelClass.h" />
+    <ClInclude Include="ModelClass.h" />
     <ClInclude Include="GraphicClass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utilites.h" />
@@ -142,6 +142,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mesh.ps" />
+    <None Include="mesh.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

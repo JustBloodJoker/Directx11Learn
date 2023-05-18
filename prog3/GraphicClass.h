@@ -1,13 +1,12 @@
 #pragma once
 #include "stdafx.h"
-
-struct Vertex {
-	dx::XMFLOAT3 Pos;
-	dx::XMFLOAT2 texCoord;
-};
+#include "ModelClass.h"
 
 class GraphicClass
 {
+private:
+	friend class ModelClass;
+
 public:
 	GraphicClass()
 	{
@@ -18,18 +17,10 @@ public:
 		m_pSwapChain = nullptr;
 		m_pRenderTargetView = nullptr;
 
-		m_pVertexShader = nullptr;
-		m_pPixelShader = nullptr;
-		m_pVertexLayout = nullptr;
-		m_pVertexBuffer = nullptr;
-
-		m_pIndexBuffer = nullptr;
-		m_pConstantBuffer = nullptr;
-
 		TexSamplerState = nullptr;
 		Texture = nullptr;
 	}
-	virtual ~GraphicClass() = default;
+	virtual ~GraphicClass() { ShutDown(); };
 
 	bool CreateDevice();
 	void BeginFrame();
@@ -52,34 +43,32 @@ public:
 		_aligned_free(p);
 	}
 
+	void InputScene(const char* sceneName,const wchar_t* vsFilename, const wchar_t* psFilename);
+
+	
+
 private:
-	friend class ModelClass;
+	
+	ID3D11Device* m_pd3dDevice;
+	ID3D11DeviceContext* m_pImmediateContext;
+	
+
+	dx::XMMATRIX m_View;
+	dx::XMMATRIX m_Projection;
+	
 
 	HWND hwnd;
 
 	D3D_DRIVER_TYPE m_driverType;
 	D3D_FEATURE_LEVEL m_featureLevel;
-	ID3D11Device* m_pd3dDevice;
-	ID3D11DeviceContext* m_pImmediateContext;
+	
 	IDXGISwapChain* m_pSwapChain;
 	ID3D11RenderTargetView* m_pRenderTargetView;
 
-	HRESULT m_compileshaderfromfile(const wchar_t* FileName, LPCSTR EntryPoint, LPCSTR ShaderModel, ID3DBlob** ppBlobOut);
-
-	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11InputLayout* m_pVertexLayout;
-	ID3D11VertexShader* m_pVertexShader;
-	ID3D11PixelShader* m_pPixelShader;
-
-	dx::XMMATRIX m_World;
-	dx::XMMATRIX m_View;
-	dx::XMMATRIX m_Projection;
-
-	ID3D11Buffer* m_pIndexBuffer;
-	ID3D11Buffer* m_pConstantBuffer;
-
 	ID3D11ShaderResourceView* Texture;
 	ID3D11SamplerState* TexSamplerState;
+
+	std::vector<ModelClass> scenes;
 
 };
 
