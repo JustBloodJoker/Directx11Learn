@@ -119,51 +119,54 @@ bool GraphicClass::Init()
 	}
 
 
-	dx::XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
-	dx::XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	dx::XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	Eye = XMVectorSet(0.0f, 0.0f, 10.0f, 1.0f);
+	At = XMVectorSet(0.0f, 10.0f, 0.0f, 0.0f);
+	Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	m_View = XMMatrixLookAtLH(Eye, At, Up);
 
 	m_Projection = dx::XMMatrixPerspectiveFovLH(dx::XM_PIDIV2, WIDTH / HEIGHT, 0.01f, 1000.0f);
 
-	InputScene("q1.obj", L"mesh.vs", L"mesh.ps");
+	InputScene("Grass.obj", L"mesh.vs", L"mesh.ps");
 
 	for (size_t iter = 0; iter < scenes.size(); iter++) {
 		scenes[iter].InitScene();
 	}
-/*
-//	Assimp::Importer importer;
-
-//	const aiScene* scene = importer.ReadFile("q1.obj", aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
-
-
-//	if (!scene) {
-//		return false;
-//	}
-	
-//	meshes = new ModelClass[scene->mNumMeshes];
-
-
-
-//	for (size_t i = 0; i < scene->mNumMeshes; i++) {
-//		meshes[i].SetDevice(m_pd3dDevice);
-//		meshes[i].SetContext(m_pImmediateContext);
-//		meshes[i].SetMesh(scene->mMeshes[i]);
-//		meshes[i].LoadModel();
-//	}
-	
-//	numMeshes = scene->mNumMeshes;
-	*/
 
 	return true;
 }
 
 bool GraphicClass::Draw()
 {
-	
 	for (size_t iter = 0; iter < scenes.size(); iter++) {
 		scenes[iter].DrawScene();
 	}
+
+	if (GetAsyncKeyState('W') & 0x8000) 
+	{
+		Eye += (0.1f * (At - Eye));
+	}
+	if (GetAsyncKeyState('S') & 0x8000) 
+	{
+		Eye -= (0.1f * (At - Eye));
+	}
+	if (GetAsyncKeyState('A') & 0x8000)  
+	{
+		Eye -= (0.1f * XMVector3Normalize(XMVector3Cross(At - Eye, Up)));
+	}
+	if (GetAsyncKeyState('D') & 0x8000)  
+	{
+		Eye += (0.1f * XMVector3Normalize(XMVector3Cross(At - Eye, Up)));
+	}
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)  
+	{
+		Eye += (0.1f * Up);
+	}
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)  
+	{
+		Eye -= (0.1f * Up);
+	}
+
+	m_View = XMMatrixLookAtLH(Eye, At, Up);
 
 	return true;
 }

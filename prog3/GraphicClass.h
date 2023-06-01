@@ -49,6 +49,10 @@ public:
 
 private:
 	
+	dx::XMVECTOR Eye;
+	dx::XMVECTOR At;
+	dx::XMVECTOR Up;
+
 	ID3D11Device* m_pd3dDevice;
 	ID3D11DeviceContext* m_pImmediateContext;
 	

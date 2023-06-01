@@ -1,6 +1,14 @@
 cbuffer cbPerObject
 {
 	float4x4 WVP;
+    float Ns;
+    float3 Ka;
+    float3 Kd;
+    float3 Ks;
+    float3 Ke;
+    float Ni;
+    float d;
+    int illum;
 };
 
 struct VertexInputType

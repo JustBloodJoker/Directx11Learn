@@ -19,7 +19,7 @@ public:
 									m_Projection(m_Projection)
 														{};
 
-	~ModelClass() { Close(); }
+	//~ModelClass() { Close(); }
 
 	bool InitScene();
 	void DrawScene();
@@ -36,8 +36,7 @@ private:
 
 	bool InitMesh(aiMesh* mesh);
 	bool InitShader();
-	void DrawMesh();
-	
+
 	void PushBackData();
 
 	void RenderBuffers(size_t iter);
@@ -67,76 +66,25 @@ private:
 	std::vector<unsigned short> m_indexCount;
 	float m_rot;
 
+	struct Materials {
+		float Ns;
+		dx::XMFLOAT3 Ka;
+		dx::XMFLOAT3 Kd;
+		dx::XMFLOAT3 Ks;
+		dx::XMFLOAT3 Ke;
+		float Ni;
+		float d;
+		int illum;
+	};
+
+	
+
+
+	struct ConstantBuffer
+	{
+		dx::XMMATRIX WVP;
+		Materials material;
+	};
+
+	std::map<std::string, Materials> materials;
 };
-
-
-/*
-
-ModelClass()
-	{
-		this->m_pd3dDevice = nullptr;
-		this->m_pImmediateContext = nullptr;
-	};
-
-	ModelClass(ID3D11Device* m_pd3dDevice, ID3D11DeviceContext* m_pImmediateContext)
-	{
-		this->m_pd3dDevice = m_pd3dDevice;
-		this->m_pImmediateContext = m_pImmediateContext;
-
-	};
-
-	void SetDevice(ID3D11Device* m_pd3dDevice) {
-		this->m_pd3dDevice = m_pd3dDevice;
-	}
-
-	void SetContext(ID3D11DeviceContext* m_pImmediateContext) {
-		this->m_pImmediateContext = m_pImmediateContext;
-	}
-
-	Vertex* InitModel();
-
-
-	void SetVertexBuffer();
-	void SetIndexBuffer();
-	void SetConstantBuffer();
-	bool CompileShader();
-	int GetIndexCount();
-	int GetVertexCount();
-	void DrawMesh();
-	void LoadModel();
-
-	void SetMesh(aiMesh* othermesh);
-
-
-
-
-
-*/
-
-
-
-
-/*
-
-HRESULT m_compileshaderfromfile(const wchar_t* FileName, LPCSTR EntryPoint, LPCSTR ShaderModel, ID3DBlob** ppBlobOut);
-
-	aiMesh* mesh;
-
-	ID3D11Device* m_pd3dDevice;
-	ID3D11DeviceContext* m_pImmediateContext;
-
-
-	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11InputLayout* m_pVertexLayout;
-	ID3D11VertexShader* m_pVertexShader;
-	ID3D11PixelShader* m_pPixelShader;
-	ID3D11Buffer* m_pIndexBuffer;
-	ID3D11Buffer* m_pConstantBuffer;
-
-	dx::XMMATRIX m_World;
-	dx::XMMATRIX m_View;
-	dx::XMMATRIX m_Projection;
-
-	int size = 0;
-
-*/

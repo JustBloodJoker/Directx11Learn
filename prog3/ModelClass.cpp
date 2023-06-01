@@ -7,10 +7,7 @@ struct Vertex
     dx::XMFLOAT2 Tex = { 0,0 };
 };
 
-struct ConstantBuffer
-{
-    dx::XMMATRIX WVP;
-};
+
 
 bool ModelClass::InitScene()
 {
@@ -18,10 +15,99 @@ bool ModelClass::InitScene()
 
     Assimp::Importer importer;
 
-    scene = importer.ReadFile("q1.obj", aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+    scene = importer.ReadFile(renderSceneName, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 
     if (!scene)
         return false;
+
+    std::fstream mtlFile;
+    mtlFile.open("Grass.mtl", std::ofstream::in);
+   
+
+    std::string nameMtl;
+    char temp;
+
+    if (mtlFile)
+    {
+        while (mtlFile)
+        {
+            temp = mtlFile.get(); 
+
+            switch (temp)
+            {
+            case '#':
+                temp = mtlFile.get();
+                while (temp != '\n')
+                    temp = mtlFile.get();
+                break;
+            case 'n': {
+                temp = mtlFile.get();
+               if(temp == 'e') {
+                   temp = mtlFile.get();
+                   if (temp == 'w') {
+                        temp = mtlFile.get();
+                        if (temp == 'm') {
+                            temp = mtlFile.get();
+                            if (temp == 't') {
+                                temp = mtlFile.get();
+                                if (temp == 'l') {
+                                    mtlFile >> nameMtl;
+                                    materials[nameMtl] = Materials();
+                                }
+                            }
+                        }
+                    }
+                }
+            break;
+            }
+            case 'N': {
+                temp = mtlFile.get();
+                if (temp == 's') {
+                    mtlFile >> materials[nameMtl].Ns;
+                }
+                else if (temp == 'i') {
+                    mtlFile >> materials[nameMtl].Ni;
+                }
+            break;
+            }
+            case 'K': {
+                temp = mtlFile.get();
+                if (temp == 'a') {
+                    mtlFile >> materials[nameMtl].Ka.x >> materials[nameMtl].Ka.y >> materials[nameMtl].Ka.z;
+                }
+                else if (temp == 'd') {
+                    mtlFile >> materials[nameMtl].Kd.x >> materials[nameMtl].Kd.y >> materials[nameMtl].Kd.z;
+                }
+                else if (temp == 's') {
+                    mtlFile >> materials[nameMtl].Ks.x >> materials[nameMtl].Ks.y >> materials[nameMtl].Ks.z;
+                }
+                else if (temp == 'e') {
+                    mtlFile >> materials[nameMtl].Ke.x >> materials[nameMtl].Ke.y >> materials[nameMtl].Ke.z;
+                }
+            break;
+            }
+            case 'd':{
+                mtlFile >> materials[nameMtl].d;
+                break;
+            }
+            case 'i':
+                temp = mtlFile.get();
+                if (temp == 'l') {
+                    temp = mtlFile.get();
+                    if (temp == 'l') {
+                        temp = mtlFile.get();
+                        if (temp == 'u') {
+                            temp = mtlFile.get();
+                            if (temp == 'm') {
+                                mtlFile >> materials[nameMtl].illum;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
 
     for (size_t iter = 0; iter < static_cast<size_t>(scene->mNumMeshes); iter++) {
         if (!InitMesh(scene->mMeshes[iter]))
@@ -33,8 +119,6 @@ bool ModelClass::InitScene()
 
     return true;
 }
-
-
 
 HRESULT ModelClass::m_compileshaderfromfile(const wchar_t* FileName, LPCSTR EntryPoint, LPCSTR ShaderModel, ID3DBlob** ppBlobOut)
 {
@@ -55,11 +139,11 @@ bool ModelClass::InitMesh(aiMesh* mesh)
 
     m_indexCount[m_indexCount.size() - 1] += TriangleCount * 3;
 
-    WORD indices[36];
+    WORD* indices = new WORD[TriangleCount * 3];
     if (!indices)
         return false;
 
-    Vertex vertices[24];
+    Vertex* vertices = new Vertex[VertexCount];
     if (!vertices)
         return false;
 
@@ -73,11 +157,15 @@ bool ModelClass::InitMesh(aiMesh* mesh)
         vertices[iter].Pos.x = mesh->mVertices[iter].x;
         vertices[iter].Pos.y = mesh->mVertices[iter].y;
         vertices[iter].Pos.z = mesh->mVertices[iter].z;
-       // vertices[iter].Tex.x = mesh->mTextureCoords[iter]->x;
-       // vertices[iter].Tex.y = mesh->mTextureCoords[iter]->y;
+
+        if (mesh->HasTextureCoords(0)) {
+            vertices[iter].Tex.x = mesh->mTextureCoords[0]->x;
+            vertices[iter].Tex.y = mesh->mTextureCoords[0]->y;
+        }
+
     }
 
-    //тут загрузка текстур пока нету =)
+
 
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -103,27 +191,52 @@ bool ModelClass::InitMesh(aiMesh* mesh)
         return false;
 
 
-    if (!ConstantBufferCreated) {
-        ZeroMemory(&bd, sizeof(bd));
-        bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(ConstantBuffer);
-        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        bd.CPUAccessFlags = 0;
-        hr = m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pConstantBuffer);
-        if (FAILED(hr))
-            return false;
+   
+    ZeroMemory(&bd, sizeof(bd));
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(ConstantBuffer);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pConstantBuffer);
+    if (FAILED(hr))
+        return false;
 
-        ConstantBufferCreated = true;
-    }
-
+    
+    
     return true;
 }
 
 bool ModelClass::InitShader()
 {
+    m_texture.push_back({ 0 });
+    m_texture.push_back({ 0 });
+
+    HRESULT hr = S_OK;
+
+    hr = D3DX11CreateShaderResourceViewFromFile(m_pd3dDevice, L"Grass1.jpg", NULL, NULL, &m_texture[0], NULL);
+    if (FAILED(hr))
+        return false;
+
+    hr = D3DX11CreateShaderResourceViewFromFile(m_pd3dDevice, L"Grass2.jpg", NULL, NULL, &m_texture[1], NULL);
+    if (FAILED(hr))
+        return false;
+
+    D3D11_SAMPLER_DESC sampDesc;
+    ZeroMemory(&sampDesc, sizeof(sampDesc));
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    hr = m_pd3dDevice->CreateSamplerState(&sampDesc, &m_sampleState);
+    if (FAILED(hr))
+        return false;
+
 
     ID3DBlob* vertexShaderBuffer = nullptr;
-    HRESULT hr = m_compileshaderfromfile(vsFilename, "VS", "vs_4_0", &vertexShaderBuffer);
+    hr = m_compileshaderfromfile(vsFilename, "VS", "vs_4_0", &vertexShaderBuffer);
     if (FAILED(hr))
         return false;
 
@@ -187,17 +300,11 @@ bool ModelClass::InitShader()
     return true;
 }
 
-void ModelClass::DrawMesh()
-{
-    
-   
-}
-
 void ModelClass::PushBackData()
 {
     m_vertexBuffer.push_back(nullptr);
     m_indexBuffer.push_back(nullptr);
-    m_texture.push_back(nullptr);
+   // m_texture.push_back(nullptr);
     m_indexCount.push_back(0);
 }
 
@@ -211,7 +318,7 @@ void ModelClass::DrawScene()
     RenderShader();
 
     for (size_t i = 0; i < m_vertexBuffer.size(); i++) {
-        RenderBuffers(i);
+       RenderBuffers(i);
     }
 
 }
@@ -220,8 +327,6 @@ void ModelClass::Close()
 {
     m_pd3dDevice = nullptr;
     m_pImmediateContext = nullptr;
-    
-    //scene->~aiScene();
 
     for (size_t iter = 0; iter < m_vertexBuffer.size(); iter++) {
         RELEASE(m_vertexBuffer[iter]);
@@ -230,16 +335,11 @@ void ModelClass::Close()
     }
     
     RELEASE(m_vertexShader);
-    //RELEASE(m_pixelShader);
-    //RELEASE(m_layout);
-    //RELEASE(m_pConstantBuffer);
-    //RELEASE(m_sampleState);
-
+    
     m_texture.~vector();
     m_indexBuffer.~vector();
     m_vertexBuffer.~vector();
     m_indexCount.~vector();
-
 }
 
 void ModelClass::RenderBuffers(size_t iter)
@@ -249,19 +349,26 @@ void ModelClass::RenderBuffers(size_t iter)
 
     m_pImmediateContext->IASetVertexBuffers(0, 1, &m_vertexBuffer[iter], &stride, &offset);
     m_pImmediateContext->IASetIndexBuffer(m_indexBuffer[iter], DXGI_FORMAT_R16_UINT, 0);
-    m_pImmediateContext->PSSetShaderResources(0, 1, &m_texture[iter]);
-
+    
+    if(iter % 2 == 0)
+    m_pImmediateContext->PSSetShaderResources(0, 1, &m_texture[0]);
+    else {
+        m_pImmediateContext->PSSetShaderResources(0, 1, &m_texture[1]);
+    }
     m_pImmediateContext->DrawIndexed(m_indexCount[iter], 0, 0);
 }
 
 void ModelClass::SetShaderParameters()
 {    
-     m_objMatrix = dx::XMMatrixRotationX(m_rot);
+    // m_objMatrix = dx::XMMatrixRotationX(m_rot);
      
      dx::XMMATRIX WVP = m_objMatrix * m_View * m_Projection;
-
      ConstantBuffer cb;
+
      cb.WVP = dx::XMMatrixTranspose(WVP);
+     cb.material = materials["dirt"];
+     
+
      m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL, &cb, 0, 0);
      m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
@@ -274,5 +381,4 @@ void ModelClass::RenderShader()
      m_pImmediateContext->VSSetShader(m_vertexShader, NULL, 0);
      m_pImmediateContext->PSSetShader(m_pixelShader, NULL, 0);
      m_pImmediateContext->PSSetSamplers(0, 1, &m_sampleState);
-   
 }
