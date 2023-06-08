@@ -8,7 +8,7 @@ public:
 	ModelClass() = default;
 	ModelClass(ID3D11Device* m_pd3dDevice,
 	ID3D11DeviceContext* m_pImmediateContext, dx::XMMATRIX& m_View,
-	dx::XMMATRIX& m_Projection, const char* sceneName,
+	dx::XMMATRIX& m_Projection, const char* sceneName, const char* materialName,
 		const wchar_t* vsFilename, const wchar_t* psFilename) :
 									renderSceneName(sceneName),
 									m_pd3dDevice(m_pd3dDevice),
@@ -16,13 +16,17 @@ public:
 									vsFilename(vsFilename),
 									psFilename(psFilename),
 									m_View(m_View), 
-									m_Projection(m_Projection)
+									m_Projection(m_Projection),
+									materialName(materialName)
 														{};
+
 
 	//~ModelClass() { Close(); }
 
 	bool InitScene();
 	void DrawScene();
+
+	void ChangePlaceXYZ(float x, float y, float z);
 
 	void Close();
 
@@ -44,6 +48,7 @@ private:
 	void RenderShader();
 
 	const char* renderSceneName;
+	const char* materialName;
 
 	ID3D11Device* m_pd3dDevice;
 	ID3D11DeviceContext* m_pImmediateContext;

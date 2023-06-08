@@ -119,6 +119,33 @@ bool GraphicClass::Init()
 	}
 
 
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = TRUE;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	
+	hr = m_pd3dDevice->CreateDepthStencilState(&depthStencilDesc, &pDepthStencilState);
+	
+
+
+
 	Eye = XMVectorSet(0.0f, 0.0f, 10.0f, 1.0f);
 	At = XMVectorSet(0.0f, 10.0f, 0.0f, 0.0f);
 	Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -126,21 +153,29 @@ bool GraphicClass::Init()
 
 	m_Projection = dx::XMMatrixPerspectiveFovLH(dx::XM_PIDIV2, WIDTH / HEIGHT, 0.01f, 1000.0f);
 
-	InputScene("Grass.obj", L"mesh.vs", L"mesh.ps");
+	InputScene("Grass.obj", "Grass.mtl", L"mesh.vs", L"mesh.ps");
+	
 
 	for (size_t iter = 0; iter < scenes.size(); iter++) {
 		scenes[iter].InitScene();
 	}
+	
 
 	return true;
 }
 
 bool GraphicClass::Draw()
 {
-	for (size_t iter = 0; iter < scenes.size(); iter++) {
-		scenes[iter].DrawScene();
-	}
+	m_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 1);
 
+	for (float x = -15.0f; x < 15.0f; x += 15.0f) {
+		for (float z = -15.0f; z < 15.0f; z += 15.0f) {
+			scenes[0].ChangePlaceXYZ(x, 0.0f, z);
+			scenes[0].DrawScene();
+
+		}
+	}
+	
 	if (GetAsyncKeyState('W') & 0x8000) 
 	{
 		Eye += (0.1f * (At - Eye));
@@ -175,12 +210,12 @@ void GraphicClass::Close()
 {
 	RELEASE(TexSamplerState);
 	RELEASE(Texture);
+
+	RELEASE(pDepthStencilState);
+
 }
 
-void GraphicClass::InputScene(const char* sceneName, const wchar_t* vsFilename, const wchar_t* psFilename)
+void GraphicClass::InputScene(const char* sceneName, const char* materialName, const wchar_t* vsFilename, const wchar_t* psFilename)
 {
-	scenes.push_back(ModelClass(this->m_pd3dDevice, this->m_pImmediateContext,this->m_View, m_Projection, sceneName, vsFilename, psFilename));
+	scenes.push_back(ModelClass(this->m_pd3dDevice, this->m_pImmediateContext,this->m_View, m_Projection, sceneName, materialName, vsFilename, psFilename));
 }
-
-
-

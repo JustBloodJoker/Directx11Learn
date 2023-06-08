@@ -16,6 +16,7 @@ public:
 		m_pImmediateContext = nullptr;
 		m_pSwapChain = nullptr;
 		m_pRenderTargetView = nullptr;
+		pDepthStencilState = nullptr;
 
 		TexSamplerState = nullptr;
 		Texture = nullptr;
@@ -43,7 +44,7 @@ public:
 		_aligned_free(p);
 	}
 
-	void InputScene(const char* sceneName,const wchar_t* vsFilename, const wchar_t* psFilename);
+	void InputScene(const char* sceneName, const char* materialName, const wchar_t* vsFilename, const wchar_t* psFilename);
 
 	
 
@@ -55,7 +56,8 @@ private:
 
 	ID3D11Device* m_pd3dDevice;
 	ID3D11DeviceContext* m_pImmediateContext;
-	
+
+	ID3D11DepthStencilState* pDepthStencilState;
 
 	dx::XMMATRIX m_View;
 	dx::XMMATRIX m_Projection;

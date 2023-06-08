@@ -7,8 +7,6 @@ struct Vertex
     dx::XMFLOAT2 Tex = { 0,0 };
 };
 
-
-
 bool ModelClass::InitScene()
 {
     m_objMatrix = dx::XMMatrixIdentity();
@@ -21,7 +19,7 @@ bool ModelClass::InitScene()
         return false;
 
     std::fstream mtlFile;
-    mtlFile.open("Grass.mtl", std::ofstream::in);
+    mtlFile.open(materialName, std::ofstream::in);
    
 
     std::string nameMtl;
@@ -317,10 +315,15 @@ void ModelClass::DrawScene()
     SetShaderParameters();
     RenderShader();
 
-    for (size_t i = 0; i < m_vertexBuffer.size(); i++) {
+    for (size_t i = 1; i < m_vertexBuffer.size(); i++) {
        RenderBuffers(i);
     }
 
+}
+
+void ModelClass::ChangePlaceXYZ(float x, float y, float z)
+{
+    m_objMatrix = dx::XMMatrixTranslation(x, y, z);
 }
 
 void ModelClass::Close()
@@ -360,8 +363,8 @@ void ModelClass::RenderBuffers(size_t iter)
 
 void ModelClass::SetShaderParameters()
 {    
-    // m_objMatrix = dx::XMMatrixRotationX(m_rot);
-     
+
+
      dx::XMMATRIX WVP = m_objMatrix * m_View * m_Projection;
      ConstantBuffer cb;
 
